@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
 const QRScanner = ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanning, setScanning] = useState(true);
-    const [busId, setBusId] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -15,9 +14,19 @@ const QRScanner = ({ navigation }) => {
     }, []);
 
     const handleBarCodeScanned = ({ type, data }) => {
-        setBusId(data);
-        navigation.navigate('BusRoute', { busId })
+        setScanning(false); // Stop scanning once a QR code is detected
+        navigation.navigate('BusRoute', { busId: data });
     };
+
+    const resetScanner = () => {
+        setScanning(true); // Reset scanning state when navigating back
+    };
+
+    // Listen for focus events to reset scanner
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', resetScanner);
+        return unsubscribe;
+    }, [navigation]);
 
     if (hasPermission === null) {
         return <Text>Requesting for camera permission</Text>;
@@ -28,16 +37,21 @@ const QRScanner = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <BarCodeScanner
-                onBarCodeScanned={handleBarCodeScanned}
-                style={StyleSheet.absoluteFillObject}
-            />    
+            {scanning && (
+                <BarCodeScanner
+                    onBarCodeScanned={handleBarCodeScanned}
+                    style={StyleSheet.absoluteFillObject}
+                />
+            )}
             <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => navigation.navigate('Main')}
             >
                 <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
+            {!scanning && (
+                <Text style={styles.scannedText}>Scanned! Press back to scan again.</Text>
+            )}
         </View>
     );
 };
@@ -48,27 +62,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#fff',
-    },
-    inactiveContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-        borderRadius: 10,
-        backgroundColor: '#f2f4f7',
-    },
-    text: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    button: {
-        backgroundColor: '#007BFF',
-        padding: 15,
-        borderRadius: 10,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
     },
     cancelButton: {
         marginTop: 60,
