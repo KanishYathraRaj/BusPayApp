@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
 const QRScanner = ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
+    const [scanning, setScanning] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -12,12 +13,23 @@ const QRScanner = ({ navigation }) => {
         })();
     }, []);
 
-    const handleBarCodeScanned = ({ data }) => {
+    const handleBarCodeScanned = ({ type, data }) => {
+        setScanning(false); // Stop scanning once a QR code is detected
         navigation.navigate('BusRoute', { busId: data });
     };
 
+    const resetScanner = () => {
+        setScanning(true); // Reset scanning state when navigating back
+    };
+
+    // Listen for focus events to reset scanner
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', resetScanner);
+        return unsubscribe;
+    }, [navigation]);
+
     if (hasPermission === null) {
-        return <Text>Requesting camera permission...</Text>;
+        return <Text>Requesting for camera permission</Text>;
     }
     if (hasPermission === false) {
         return <Text>No access to camera</Text>;
@@ -25,18 +37,21 @@ const QRScanner = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* Ensuring full screen by overlaying StatusBar */}
-            <StatusBar barStyle="light-content" translucent={true} backgroundColor="transparent" />
-            <BarCodeScanner
-                onBarCodeScanned={handleBarCodeScanned}
-                style={StyleSheet.absoluteFillObject}
-            />
+            {scanning && (
+                <BarCodeScanner
+                    onBarCodeScanned={handleBarCodeScanned}
+                    style={StyleSheet.absoluteFillObject}
+                />
+            )}
             <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => navigation.navigate('Main')}
             >
                 <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
+            {!scanning && (
+                <Text style={styles.scannedText}>Scanned! Press back to scan again.</Text>
+            )}
         </View>
     );
 };
@@ -44,20 +59,23 @@ const QRScanner = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#000',
+        backgroundColor: '#fff',
     },
     cancelButton: {
+        marginTop: 60,
         backgroundColor: '#ff5c5c',
-        padding: 15,
+        padding: 10,
         borderRadius: 10,
-        marginBottom: 30,
     },
     cancelText: {
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 18,
+    },
+    scannedText: {
+        marginTop: 20,
+        fontSize: 16,
     },
 });
 

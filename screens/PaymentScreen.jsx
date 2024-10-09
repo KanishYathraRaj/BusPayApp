@@ -48,7 +48,7 @@ const PaymentScreen = () => {
       {/* Payment Content */}
       <View style={styles.container}>
         <Text style={styles.heading}>Choose the Mode of Payment</Text>
-        <Button title="Pay Now" onPress={paymentGateway} color="#007BFF" />
+        <Button title="Pay Now" onPress={paymentGateway} color="#007BFF"  />
       </View>
     </View>
   );
