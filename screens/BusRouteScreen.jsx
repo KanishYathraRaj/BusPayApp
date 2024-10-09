@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+const { height, width } = Dimensions.get('window'); // Get the screen dimensions
 
 const BusRouteScreen = ({ route, navigation }) => {
-    // Simulating stops for the bus route
-    const { busId } = route.params; // Get bus ID from the previous screen
+    const { busId } = route.params;
     const stops = [
         { name: 'Sathy', fare: 10 },
         { name: 'Pulliumpati', fare: 22 },
@@ -14,12 +16,13 @@ const BusRouteScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
+            {/* Full screen including notification bar */}
+            <StatusBar barStyle="light-content" translucent={true} backgroundColor="transparent" />
             <Text style={styles.busText}>Bus ID: {busId}</Text>
-            <View style={styles.tripList}>
+            <ScrollView contentContainerStyle={styles.tripList}>
                 {stops.map((stop, index) => (
                     <View key={index} style={styles.tripContainer}>
-                        
-                        <View style={styles.bulletPoint} /> 
+                        <Ionicons name="bus-outline" size={24} color="#007BFF" />
                         {index !== stops.length - 1 && <View style={styles.verticalLine} />}
 
                         <View style={styles.tripCard}>
@@ -36,7 +39,7 @@ const BusRouteScreen = ({ route, navigation }) => {
                         </View>
                     </View>
                 ))}
-            </View>
+            </ScrollView>
         </View>
     );
 };
@@ -45,52 +48,44 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f2f4f7',
-        paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: StatusBar.currentHeight || height * 0.05, // Dynamic padding to cover notification bar
+        paddingHorizontal: width * 0.05,
     },
     busText: {
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: 'bold',
         marginBottom: 20,
         color: '#007BFF',
+        textAlign: 'center',
     },
     tripList: {
-        flexDirection: 'column',
-        position: 'relative',
+        flexGrow: 1, // Ensures the ScrollView occupies the full space
     },
     tripContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: 20,
+        marginBottom: 30,
         position: 'relative',
     },
     verticalLine: {
         position: 'absolute',
         width: 2,
         backgroundColor: '#007BFF',
-        top: 20,
+        top: 30,
         bottom: 0,
         left: 15,
     },
-    bulletPoint: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: '#007BFF',
-        marginRight: 10,
-        marginTop: 5,
-    },
     tripCard: {
         backgroundColor: '#fff',
-        borderRadius: 15,
-        padding: 15,
+        borderRadius: 20,
+        padding: 20,
         marginLeft: 20,
         flex: 1,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
+        shadowRadius: 5,
+        elevation: 7,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -112,7 +107,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#007BFF',
         paddingVertical: 10,
         paddingHorizontal: 15,
-        borderRadius: 10,
+        borderRadius: 12,
+        shadowColor: '#007BFF',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 8,
     },
     selectButtonText: {
         color: '#fff',

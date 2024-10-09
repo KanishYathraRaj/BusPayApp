@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
 const QRScanner = ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
-    const [scanning, setScanning] = useState(true);
-    const [busId, setBusId] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -14,13 +12,12 @@ const QRScanner = ({ navigation }) => {
         })();
     }, []);
 
-    const handleBarCodeScanned = ({ type, data }) => {
-        setBusId(data);
-        navigation.navigate('BusRoute', { busId })
+    const handleBarCodeScanned = ({ data }) => {
+        navigation.navigate('BusRoute', { busId: data });
     };
 
     if (hasPermission === null) {
-        return <Text>Requesting for camera permission</Text>;
+        return <Text>Requesting camera permission...</Text>;
     }
     if (hasPermission === false) {
         return <Text>No access to camera</Text>;
@@ -28,10 +25,12 @@ const QRScanner = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            {/* Ensuring full screen by overlaying StatusBar */}
+            <StatusBar barStyle="light-content" translucent={true} backgroundColor="transparent" />
             <BarCodeScanner
                 onBarCodeScanned={handleBarCodeScanned}
                 style={StyleSheet.absoluteFillObject}
-            />    
+            />
             <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => navigation.navigate('Main')}
@@ -45,44 +44,20 @@ const QRScanner = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-        backgroundColor: '#fff',
-    },
-    inactiveContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-        borderRadius: 10,
-        backgroundColor: '#f2f4f7',
-    },
-    text: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    button: {
-        backgroundColor: '#007BFF',
-        padding: 15,
-        borderRadius: 10,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
+        backgroundColor: '#000',
     },
     cancelButton: {
-        marginTop: 60,
         backgroundColor: '#ff5c5c',
-        padding: 10,
+        padding: 15,
         borderRadius: 10,
+        marginBottom: 30,
     },
     cancelText: {
         color: '#fff',
         fontWeight: 'bold',
-    },
-    scannedText: {
-        marginTop: 20,
-        fontSize: 16,
+        fontSize: 18,
     },
 });
 
