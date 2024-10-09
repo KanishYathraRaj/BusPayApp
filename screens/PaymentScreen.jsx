@@ -1,43 +1,31 @@
-import React from 'react'
-import { View , Text} from 'react-native' ;
-import { Button } from 'react-native';
-
-import { RNUpiPayment }  from 'react-native-upi-payment';
+import React from 'react';
+import { Button, Alert, Linking } from 'react-native';
 
 const PaymentScreen = () => {
+  const upiId = 'durgadevi.aims@oksbi';
+  const amount = '1.00';  
+  const transactionNote = 'Bus ticket payment';
+  const payerName = 'Dhurga Devi'; 
 
-  const paymentGateway = () => {
+  const initiateUpiPayment = async () => {
+    const upiUri = `upi://pay?pa=${upiId}&pn=${payerName}&tn=${transactionNote}&am=${amount}&cu=INR`;
 
-
-    RNUpiPayment.initializePayment(
-      {
-        vpa: 'kanish.aims@okhdfcbank', // or can be john@ybl or mobileNo@upi
-        payeeName: 'KANISH YATHRA RAJ',
-        amount: '1',
-        transactionRef: 'aasf-332-aoei-fn',
-      },
-      successCallback,
-      failureCallback
-    );
-
-  }
-
-  function successCallback(data) {
-    // do whatever with the data
-    alert(data)
-  }
-  
-  function failureCallback(data) {
-    // do whatever with the data
-    alert(data)
-  }
+    try {
+      const supported = await Linking.canOpenURL(upiUri);
+      if (supported) {
+        // Opens the UPI app
+        await Linking.openURL(upiUri);
+      } else {
+        Alert.alert('Error', 'UPI apps not found on this device.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to initiate payment.');
+    }
+  };
 
   return (
-    <View>
-      <Text > Choose the mode of payment </Text>
-      <Button title='pay' onPress={paymentGateway}></Button>
-    </View>
-  )
-}
+    <Button title="Pay with UPI" onPress={initiateUpiPayment} />
+  );
+};
 
-export default PaymentScreen
+export default PaymentScreen;
