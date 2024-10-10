@@ -34,7 +34,7 @@ export default function App() {
             <Stack.Screen name="Main" component={MainScreen} options={{ headerShown: false }} />
             <Stack.Screen name="BusRoute" component={BusRouteScreen} options={{ headerShown: false }} />
             <Stack.Screen name="QRScan" component={QRScanner} options={{ headerShown: false }} />
-            <Stack.Screen name="Payment" component={PaymentScreen} />
+            <Stack.Screen name="Payment" component={PaymentScreen} options={{ headerShown: false }} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
